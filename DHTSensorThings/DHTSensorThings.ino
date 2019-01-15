@@ -25,12 +25,12 @@ unsigned long skip = 1;
 int SensorThing_temperature_count = 1;            // elements in temperature arry
 // DS 7 = Test Temp
 String SensorThing_temperature[] = {
-  "http://leffe:8080/SensorThingsService/v1.0/Datastreams(7)/Observations",
+  "http://server.example.com:8080/FROST-Server/v1.0/Datastreams(7)/Observations",
 };
 // DS 8 = Test Humid
 int SensorThing_humidity_count = 1;               // elements in humidity arry
 String SensorThing_humidity[] = {
-  "http://leffe:8080/SensorThingsService/v1.0/Datastreams(8)/Observations",
+  "http://server.example.com:8080/FROST-Server/v1.0/Datastreams(8)/Observations",
 };
 
 void setup() {
