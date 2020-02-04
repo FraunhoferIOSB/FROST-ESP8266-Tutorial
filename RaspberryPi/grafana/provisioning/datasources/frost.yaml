@@ -5,7 +5,7 @@ datasources:
   type: linksmart-sensorthings-datasource
   access: direct
   orgId: 1
-  url: http://localhost/FROST-Server/v1.0
+  url: http://frost-server/FROST-Server/v1.0
   user: 
   password:
   database: 

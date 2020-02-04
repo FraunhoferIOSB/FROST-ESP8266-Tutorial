@@ -1,0 +1,60 @@
+{
+  "name": "MyThing",
+  "description": "My test thing",
+  "Locations": [{
+    "name": "BenchmarkThing",
+    "description": "The location of the benchmark thing.",
+    "encodingType": "application/geo+json",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        8,
+        52
+      ]
+    }
+  }],
+  "Datastreams": [{
+      "name": "Temperature of MyThing",
+      "description": "this is a temperatur datastream for my thing",
+      "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+      "unitOfMeasurement": {
+        "name": "degree celcius",
+        "symbol": "°C",
+        "definition": "ucum:°C"
+      },
+      "ObservedProperty": {
+        "name": "Temperature",
+        "description": "environmental temperatur",
+        "definition": "http://ucom.org/temperature"
+      },
+      "Sensor": {
+        "name": "DHT22.Temperature",
+        "description": "Sensor forTemperature",
+        "encodingType": "application/pdf",
+        "metadata": "https://cdn.shopify.com/s/files/1/1509/1638/files/DHT_22_-_AM2302_Temperatur_und_Luftfeuchtigkeitssensor_Datenblatt.pdf"
+      }
+    },
+	{
+      "name": "Humidity of MyThing",
+      "description": "this is a humidity datastream for my thing",
+      "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+      "unitOfMeasurement": {
+        "name": "Percent",
+        "symbol": "%",
+        "definition": "ucum:%"
+      },
+      "ObservedProperty": {
+        "name": "Humidity",
+        "description": "relative humidity",
+        "definition": "http://ucom.org/humidity"
+      },
+      "Sensor": {
+        "name": "DHT22.Humidity",
+        "description": "Sensor for Humidity",
+        "encodingType": "application/pdf",
+        "metadata": "https://cdn.shopify.com/s/files/1/1509/1638/files/DHT_22_-_AM2302_Temperatur_und_Luftfeuchtigkeitssensor_Datenblatt.pdf"
+      }
+    }
+  ]
+}
+

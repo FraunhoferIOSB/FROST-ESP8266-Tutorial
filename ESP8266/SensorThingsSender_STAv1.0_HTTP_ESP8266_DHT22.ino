@@ -4,32 +4,35 @@
 #include <WiFiClient.h>
 #include "DHT.h"
 
-#define DHTTYPE DHT22                             // DHT 22  (AM2302), AM2321
-#define DHTPIN 0                                  // what digital pin we're connected to
-#define ARRAY_SIZE(x) sizeof(x)/sizeof(x[0])      // helper function to determine array size
+#define DHTTYPE DHT22                            // DHT 22  (AM2302), AM2321
+#define DHTPIN 0                                 // what digital pin we're connected to
+#define ARRAY_SIZE(x) sizeof(x)/sizeof(x[0])     // helper function to determine array size
 
 DHT dht(DHTPIN, DHTTYPE);
 
-const char* ssid     = "your WiFi SSID";      // your WiFi SSID
-const char* password = "your WiFi password";   // your WiFi password
+const char* ssid     = "frost-network";          // your WiFi SSID
+const char* password = "frostWEB";               // your WiFi password
 
 const long intervalSensorRead = 15000;           // interval sensor read in ms
 const long intervalDataSend = 4;                 // interval send data (in multiples of intervalSensorRead)
-const int jsonSize = 23;                         // compute with https://arduinojson.org/v6/assistant/
+const long jsonSize = 23;                        // compute with https://arduinojson.org/v6/assistant/
 unsigned long millisLast = 0;
 unsigned long skip = 1;
+unsigned long httpRetries = 3;                   // sometimes HTTP connectino gets refused, so do retries before actually failing
 
-const char* DatastreamUrlPattern = "http://your.server.org/v1.0/Datastreams(%i)/Observations";   // put your SensorThings Server URL here
+const char* DatastreamUrlPattern = "http://frost-server/FROST-Server/v1.0/Datastreams(%i)/Observations";   // put your SensorThings Server URL here
 
 // IDs of datastreams to insert temperature measurements
 int DatastreamsTemperature[] = {
-  41
+  1
 };
 
 // IDs of datastreams to insert humidity measurements
 int DatastreamsHumidity[] = {
-  41
+  2
 };
+
+HTTPClient http;
 
 void setup() {
   Serial.begin(115200);
@@ -53,6 +56,7 @@ void setup() {
   printMac();
   startSensor();  
   connectToWiFi();
+  http.setReuse(true);
 }
 
 void loop() {
@@ -114,11 +118,21 @@ void doHttpPost(String url, char* data) {
   Serial.print(data);
   Serial.print(" to url: ");
   Serial.print(url);
-  Serial.println();
-  HTTPClient http;
+  Serial.println();  
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
-  int httpCode = http.POST(data);
+  long tries = 0;
+  int httpCode = 0;
+  do {
+    httpCode = http.POST(data);
+    tries++;
+    if (tries > 1) {
+      Serial.print("HTTP POST failed, error: ");
+      Serial.print(http.errorToString(httpCode).c_str());
+      Serial.print(" - retrying");
+      Serial.println();
+    }
+  } while (httpCode < 0 && tries <= httpRetries);
   if (httpCode > 0) {
     if (httpCode != 201) {
       Serial.print("Unexpected HTTP result, code: ");
