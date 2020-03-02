@@ -8,6 +8,7 @@ DEMO_USER="demo"
 DEMO_USER_PWD="frostdemo"
 WIFI_SSID="frost-network"
 WIFI_PWD="frostWEB"
+SERVICE_NAME=frost
 
 if ! [ $(id -u) = 0 ]; then
    echo "This script must be run a root!"
@@ -25,23 +26,19 @@ case $key in
     shift
     shift
     ;;
-	-p|--password)
+    -p|--password)
     DEMO_USER_PWD="$2"
     shift
     shift
     ;;
-	--wifi-ssid)
+    --wifi-ssid)
     WIFI_SSID="$2"
     shift
     shift
     ;;
-	--wifi-pwd)
+    --wifi-pwd)
     WIFI_PWD="$2"
     shift
-    shift
-    ;;
-    --default)
-    DEFAULT=YES
     shift
     ;;
     *)    # unknown option
@@ -54,8 +51,8 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [ -z "$(getent passwd $DEMO_USER)" ]
 then
-	echo "creating user: $DEMO_USER with password $DEMO_USER_PWD"
-	sudo adduser --quiet --disabled-password --gecos "demo user" --ingroup sudo $DEMO_USER
+    echo "creating user: $DEMO_USER with password $DEMO_USER_PWD"
+    sudo adduser --quiet --disabled-password --gecos "demo user" --ingroup sudo $DEMO_USER
 fi
 echo "$DEMO_USER:$DEMO_USER_PWD" | sudo chpasswd
 
@@ -81,12 +78,20 @@ fi
 WORK_DIR=$GIT_LOCAL/RaspberryPi
 
 sudo chown -R $DEMO_USER $GIT_LOCAL
-
 docker-compose -f $WORK_DIR/docker-compose.yaml pull
-sudo cp -rf $WORK_DIR/frost-demo.sh /etc/init.d/frost-demo
-sudo sed -i "s/\$DIR/$(echo "$WORK_DIR" | sed "s;/;\\\/;g")/" /etc/init.d/frost-demo
-sudo update-rc.d -f frost-demo remove
-sudo update-rc.d frost-demo defaults
+
+sudo service $SERVICE_NAME stop
+sudo update-rc.d $SERVICE_NAME disable
+sudo rm -f /etc/init.d/$SERVICE_NAME
+sudo update-rc.d -f $SERVICE_NAME remove
+sudo systemctl reset-failed
+sudo cp -rf $WORK_DIR/frost-demo.sh $WORK_DIR/$SERVICE_NAME
+sudo sed -i "s/\$DIR/$(echo "$WORK_DIR" | sed "s;/;\\\/;g")/" $WORK_DIR/$SERVICE_NAME
+sudo chmod 755 $WORK_DIR/$SERVICE_NAME
+sudo chown root:root $WORK_DIR/$SERVICE_NAME
+sudo cp -rf $WORK_DIR/$SERVICE_NAME /etc/init.d/$SERVICE_NAME
+sudo update-rc.d $SERVICE_NAME defaults
+
 
 echo "setting up wifi hotspot ..."
 sudo apt-get update && apt-get -y install hostapd dnsmasq
@@ -110,4 +115,6 @@ sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
 sudo systemctl start hostapd
 
+echo "going to reboot in 10s"
+sleep 10
 sudo reboot

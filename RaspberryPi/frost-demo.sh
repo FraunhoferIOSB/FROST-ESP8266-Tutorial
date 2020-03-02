@@ -11,16 +11,16 @@
 ### END INIT INFO
 
 start() {
-	docker-compose -f $DIR/docker-compose.yaml up
+    docker-compose -f $DIR/docker-compose.yaml up
 }
 
 stop() {
-	docker-compose -f $DIR/docker-compose.yaml down
+    docker-compose -f $DIR/docker-compose.yaml down
 }
 
 case "$1" in
   start)
-	start
+    start
     ;;
   stop)
     stop
