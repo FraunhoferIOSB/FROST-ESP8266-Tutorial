@@ -1,0 +1,52 @@
+version: '2.1'
+
+services:
+  frost:
+    image: fraunhoferiosb/frost-server:feature-docker_multi_arch-1.11-SNAPSHOT
+    environment:
+      - serviceRootUrl=${SERVER_ROOT_URL}/FROST-Server
+      - http_cors_enable=true
+      - http_cors_allowed.origins=*
+      - persistence_db_driver=org.postgresql.Driver
+      - persistence_db_url=jdbc:postgresql://database:5432/sensorthings
+      - persistence_db_username=${DB_USER}
+      - persistence_db_password=${DB_PASSWORD}
+      - persistence_autoUpdateDatabase=true
+    ports:
+      - 1883:1883
+    depends_on:
+      - database
+
+  database:
+    image: duvel/postgis:10-alpine
+    environment:
+      - POSTGRES_DB=sensorthings
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgis_volume:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - GF_INSTALL_PLUGINS=linksmart-sensorthings-datasource 1.3.0
+      - GF_SERVER_ROOT_URL=${SERVER_ROOT_URL}/grafana
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+
+  proxy:
+    image: nginx:1.17.1-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - frost   
+      - grafana
+
+volumes:
+    postgis_volume:

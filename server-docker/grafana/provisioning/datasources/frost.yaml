@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+- name: FROST-Server
+  type: linksmart-sensorthings-datasource
+  access: direct
+  orgId: 1
+  url: http://localhost/FROST-Server/v1.0
+  user: 
+  password:
+  database: 
+  isDefault: true
+  basicAuth: false
+  version: 1
+  editable: false
+  readOnly: true
