@@ -18,7 +18,7 @@ services:
       - database
 
   database:
-    image: duvel/postgis:10-alpine
+    image: postgis/postgis:11-2.5-alpine
     environment:
       - POSTGRES_DB=sensorthings
       - POSTGRES_USER=${DB_USER}
